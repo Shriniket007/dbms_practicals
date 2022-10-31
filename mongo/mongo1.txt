@@ -1,0 +1,72 @@
+
+shriniket> db.createCollection("library");
+{ ok: 1 }
+
+shriniket> db.library.insert({"b_id":1,"name":"c++"});
+
+DeprecationWarning: Collection.insert() is deprecated. Use insertOne, insertMany, or bulkWrite.
+{
+  acknowledged: true,
+  insertedIds: { '0': ObjectId("635e4adffb6506477c17ac8c") }
+}
+
+
+shriniket> db.library.insertOne({"b_id": 2, "name": "java"});
+{
+  acknowledged: true,
+  insertedId: ObjectId("635e4b26fb6506477c17ac8d")
+}
+
+shriniket> db.library.insertOne({"b_id": 3, "name": "php"});
+{
+  acknowledged: true,
+  insertedId: ObjectId("635e4b52fb6506477c17ac8e")
+}
+
+shriniket> db.library.find();
+[
+  { _id: ObjectId("635e4adffb6506477c17ac8c"), b_id: 1, name: 'c++' },
+  { _id: ObjectId("635e4b26fb6506477c17ac8d"), b_id: 2, name: 'java' },
+  { _id: ObjectId("635e4b52fb6506477c17ac8e"), b_id: 3, name: 'php' }
+]
+
+
+shriniket> db.library.remove({"b_id": 3});
+DeprecationWarning: Collection.remove() is deprecated. Use deleteOne, deleteMany, findOneAndDelete, or bulkWrite.
+{ acknowledged: true, deletedCount: 1 }
+shriniket> db.library.find();
+[
+  { _id: ObjectId("635e4adffb6506477c17ac8c"), b_id: 1, name: 'c++' },
+  { _id: ObjectId("635e4b26fb6506477c17ac8d"), b_id: 2, name: 'java' }
+]
+
+
+shriniket> db.library.find({"name": "java"});
+[
+  { _id: ObjectId("635e4b26fb6506477c17ac8d"), b_id: 2, name: 'java' }
+]
+shriniket> db.library.insert({"b_id":3,"name":"Java-jdk","desc":"fake book"});
+DeprecationWarning: Collection.insert() is deprecated. Use insertOne, insertMany, or bulkWrite.
+{
+  acknowledged: true,
+  insertedIds: { '0': ObjectId("635e51457cadcf81f77a19d9") }
+}
+shriniket> db.library.find({$or:[{"name":"Java-jdk"},{"name":"DSA"}]}).pretty();
+[
+  {
+    _id: ObjectId("635e51457cadcf81f77a19d9"),
+    b_id: 3,
+    name: 'Java-jdk',
+    desc: 'fake book'
+  }
+]
+shriniket> db.library.find({$or:[{"name":"Java-jdk"},{"name":"c++"}]}).pretty();
+[
+  { _id: ObjectId("635e4adffb6506477c17ac8c"), b_id: 1, name: 'c++' },
+  {
+    _id: ObjectId("635e51457cadcf81f77a19d9"),
+    b_id: 3,
+    name: 'Java-jdk',
+    desc: 'fake book'
+  }
+]

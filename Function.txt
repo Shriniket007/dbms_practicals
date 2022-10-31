@@ -1,0 +1,69 @@
+create table stud_marks(rollno int, name varchar(20), mark int);
+insert into stud_marks values(10, 'shriniket', 1000);
+insert into stud_marks values(11, 'arijit', 920);
+insert into stud_marks values(12, 'messi', 830);
+
+create table result(roll int, name varchar(20), class varchar(20));
+
+
+
+SQL> select * from stud_marks;
+
+    ROLLNO NAME                       MARK
+---------- -------------------- ----------
+        10 shriniket                  1000
+        11 arijit                      920
+        12 messi                       830
+
+set serveroutput on;
+create or replace function fungrade(roll IN number) return varchar2 is
+class varchar2(20);
+cursor c1 is
+select rollno, name, mark from stud_marks where rollno = roll;
+tmp c1%rowtype;
+begin
+open c1;
+fetch c1 into tmp;
+if(tmp.mark>=990 and tmp.mark<=1500)then
+class:='DISTINCTION';
+insert into result values(roll, tmp.name, class);
+elsif(tmp.mark>=900 and tmp.mark<=989)then
+class:='FIRST CLASS';
+insert into result values(roll, tmp.name, class);
+elsif(tmp.mark>=825 and tmp.mark<=899)then
+class:='SECOND CLASS';
+insert into result values(roll, tmp.name, class);
+end if;
+close c1;
+dbms_output.put_line('class:'|| class);
+return class;
+end;
+ /
+
+Function created.
+
+SQL> declare
+    stud1 varchar(20);
+    stud2 varchar(20);
+    stud3 varchar(20);
+    begin
+    stud1:= fungrade(10);
+    stud2:= fungrade(11);
+    stud3:= fungrade(12);
+    end;
+   /
+class:DISTINCTION
+class:FIRST CLASS
+class:SECOND CLASS
+
+PL/SQL procedure successfully completed.
+
+SQL> select * from result;
+
+      ROLL NAME                 CLASS
+---------- -------------------- --------------------
+        10 shriniket            DISTINCTION
+        11 arijit               FIRST CLASS
+        12 messi                SECOND CLASS
+
+SQL>

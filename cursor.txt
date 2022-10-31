@@ -1,0 +1,208 @@
+IMPLICIT
+
+create table stud_att(roll_no int, name varchar(20), att_status varchar(20), div varchar(20));
+insert into stud_att values(5, 'shriniket', 'present', 'A');
+insert into stud_att values(6, 'messi', 'present', 'A');
+insert into stud_att values(7, 'arijit', 'present', 'A');
+
+
+SQL> select * from stud_att;
+
+   ROLL_NO NAME                 ATT_STATUS           DIV
+---------- -------------------- -------------------- -----
+         5 shriniket            present              A
+         6 messi                present              A
+         7 arijit               present              A
+
+
+set severoutput on;  // type this on cmd
+
+
+begin
+ update stud_att set att_status = 'ABSENT' where roll_no = 5;
+ if sql%found then
+ dbms_output.put_line('updated - if found');
+ end if;
+ if sql%notfound then
+ dbms_output.put_line('not updated if not found');
+ end if;
+ if sql%rowcount>0 then
+ dbms_output.put_line(sql%rowcount||'rows updated');
+ else
+ dbms_output.put_line('no rows updated');
+ end if;
+ end;
+ /
+
+updated - if found
+1rows updated
+
+PL/SQL procedure successfully completed.
+
+SQL> select * from stud_att;
+
+   ROLL_NO NAME                 ATT_STATUS           DIV
+---------- -------------------- -------------------- -----
+         5 shriniket            ABSENT               A
+         6 messi                present              A
+         7 arijit               present              A
+
+
+________________________________________________________________________________________________________________________________________________
+
+
+EXPLICIT
+
+
+set serveroutput on; //type the code
+declare 
+cursor explicit_cur is select roll_no, name, div from stud_att where att_status = 'present';
+tmp explicit_cur%rowtype;
+begin
+dbms_output.put_line('hii this is test');
+open explicit_cur;
+loop exit when explicit_cur%notfound;
+fetch explicit_cur into tmp;
+dbms_output.put_line('ROLLNO:'|| tmp.roll_no||' NAME:'||tmp.name||' Div:'||tmp.div);
+end loop;
+if explicit_cur%rowcount>0 then
+dbms_output.put_line(explicit_cur%rowcount||'rows found');
+else
+dbms_output.put_line('no rows found');
+end if;
+close explicit_cur;
+end;
+/
+
+
+hii this is test
+ROLLNO:5 NAME:shriniket Div:A
+ROLLNO:6 NAME:messi Div:A
+ROLLNO:7 NAME:arijit Div:A
+3rows found
+
+PL/SQL procedure successfully completed.
+
+SQL>
+
+
+
+_________________________________________________________________________________________________________________________________________________
+
+
+
+
+FOR LOOP CURSOR 
+set serveroutput on;
+declare
+cursor for_cursor is select roll_no, name, div from stud_att where att_status = 'ABSENT';
+tmp for_cursor%rowtype;
+begin
+for tmp in for_cursor
+loop
+dbms_output.put_line('roll_no: '||tmp.roll_no||' name: '||tmp.name||' div: '||tmp.div);
+end loop;
+end;
+/
+
+roll_no: 5 name: shriniket div: A
+
+PL/SQL procedure successfully completed.
+
+
+
+__________________________________________________________________________________________________________________________________________________
+
+
+PARAMETERIZED CURSOR
+
+declare
+roll number;
+cursor param_cur(roll number) is select * from stud_att where roll_no = roll;
+tmp param_cur%rowtype;
+begin 
+roll:= &roll;
+for tmp in param_cur(roll)
+loop
+dbms_output.put_line('name: '||tmp.name);
+dbms_output.put_line('div: '||tmp.div);
+dbms_output.put_line('attendence: '||tmp.att_status);
+end loop;
+end;
+/
+
+
+Enter value for roll: 5
+old   6: roll:= &roll;
+new   6: roll:= 5;
+name: shriniket
+div: A
+attendence: ABSENT
+
+PL/SQL procedure successfully completed.
+
+
+__________________________________________________________________________________________________________________________________________________________
+
+
+
+MERGE 
+
+create table stud_att_m(roll_no int, name varchar(20), att_status varchar(20), div varchar(5));
+insert into stud_att_m values(5, 'shriniket', 'present', 'A');
+insert into stud_att_m values(6, 'messi', 'present', 'A');
+insert into stud_att_m values(7, 'arijit', 'present', 'A');
+
+create table stud_info(roll_no int, name varchar(20),  att_status varchar(20), div varchar(5));
+insert into stud_info values(8, 'elon', 'present', 'A');
+insert into stud_info values(9, 'sundar', 'present', 'A');
+
+
+SQL> select * from stud_att_m;
+
+   ROLL_NO NAME                 ATT_STATUS           DIV
+---------- -------------------- -------------------- -----
+         5 shriniket            present              A
+         6 messi                present              A
+         7 arijit               present              A
+
+
+begin 
+merge into stud_att_m t1 using (select roll_no, name, att_status, div from stud_info) t2 on
+(t1.roll_no = t2.roll_no) when not matched then insert
+values(t2.roll_no, t2.name, t2.att_status, t2.div);
+	if sql%found then
+	dbms_output.put_line('merged');
+	end if;
+	if sql%notfound then
+	dbms_output.put_line('not merged');
+	end if;
+	if sql%rowcount>0 then
+	dbms_output.put_line(sql%rowcount||'row updated');
+	else
+	dbms_output.put_line('no rows updated');
+	end if;
+	end;
+/
+
+
+
+merged
+2row updated
+
+PL/SQL procedure successfully completed.
+
+SQL> select * from stud_att_m;
+
+   ROLL_NO NAME                 ATT_STATUS           DIV
+---------- -------------------- -------------------- -----
+         8 elon                 present              A
+         9 sundar               present              A
+         5 shriniket            present              A
+         6 messi                present              A
+         7 arijit               present              A
+
+SQL>
+
+
+

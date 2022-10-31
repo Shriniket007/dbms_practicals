@@ -1,0 +1,64 @@
+create table stud_marks(rollno int, name varchar(20), mark int);
+insert into stud_marks values(10, 'shriniket', 1000);
+insert into stud_marks values(11, 'arijit', 920);
+insert into stud_marks values(12, 'messi', 830);
+
+create table Result(roll int, name varchar(20), class varchar(20));
+
+
+SQL> select * from stud_marks;
+
+    ROLLNO NAME                       MARK
+---------- -------------------- ----------
+        10 shriniket                  1000
+        11 arijit                      920
+        12 messi                       830
+
+ set serveroutput on;
+ CREATE OR REPLACE PROCEDURE procgrad(roll IN NUMBER)
+ AS
+ class varchar2(20);
+ CURSOR c1
+ IS
+ select rollno, name, mark from stud_marks where rollno = roll;
+ tmp c1%rowtype;
+ BEGIN
+ open c1;
+ FETCH c1 INTO tmp;
+ IF(tmp.mark >=990 and tmp.mark <= 1500) THEN
+ class := 'DISTINCTION';
+ ELSIF(tmp.mark >= 900 and tmp.mark <= 989) THEN
+ class := 'FIRST CLASS';
+ ELSIF(tmp.mark >= 825 and tmp.mark <= 899) THEN
+ class := 'SECOND CLASS';
+ END if;
+ dbms_output.put_line('class:' || class);
+ insert into Result VALUES(roll, tmp.name, class);
+ close c1;
+ END;
+ /
+
+Procedure created.
+
+SQL> begin
+  2  procgrad(10);
+  3  procgrad(11);
+  4  procgrad(12);
+  5  end;
+  6  /
+class:DISTINCTION
+class:FIRST CLASS
+class:SECOND CLASS
+
+PL/SQL procedure successfully completed.
+
+
+SQL> select * from Result;
+
+      ROLL NAME                 CLASS
+---------- -------------------- --------------------
+        10 shriniket            DISTINCTION
+        11 arijit               FIRST CLASS
+        12 messi                SECOND CLASS
+
+SQL>
