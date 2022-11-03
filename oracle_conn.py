@@ -1,6 +1,7 @@
-from tkinter import E, EXCEPTION
+# create table sql_conn(roll_no int, name varchar(20), marks int);
 
-from numpy import roll
+
+from tkinter import E, EXCEPTION
 import cx_Oracle
 
 def add_entry(roll_no, name, marks):
@@ -11,34 +12,23 @@ def add_entry(roll_no, name, marks):
 
     sql_query = 'INSERT INTO sql_conn VALUES (:r, :n, :m)'
     try:
-        dsn_tns = cx_Oracle.makedsn('localhost', '1521', service_name = 'XE')
-        conn = cx_Oracle.connect(user = r'shriniket', password = 'shriniket', dsn = dsn_tns)              #bug user
+        conn = cx_Oracle.connect('system/shriniket@//localhost:1521/xe')  #('username/password@//localhost:1521/xe')      
         c = conn.cursor()
         c.execute(sql_query, [int(roll_no), name, int(marks)])
         conn.commit()
     except cx_Oracle.Error as e:
         print(e)
 
-    c.execute('SELECT * FROM sql_conn')
-    for rows in c:
-        print(rows[0], '-', rows[1], '-', rows[2], '\n')
-        conn.commit()
-        c.close()
 
 def delete_entry(sql, del_query):
     try:
-        dsn_tns = cx_Oracle.makedsn('localhost', '1521', service_name = 'XE')
-        conn = cx_Oracle.connect(user = r'shriniket', paasword = 'shriniket', dsn = dsn_tns)
+        conn = cx_Oracle.connect('system/shriniket@//localhost:1521/xe')
         c = conn.cursor()
         c.execute(sql,[del_query])
         conn.commit()
 
     except Exception as e:
         print(e)
-    c.execute('SELECT * FROM sql_conn')
-    for data in c:
-        print(data[0], '-', data[1], '-', data[2], '\n')
-        c.close()
 
 def update_entry(roll_no, name, marks):
     print('here')
@@ -50,25 +40,17 @@ def update_entry(roll_no, name, marks):
         
     sql_query = 'UPDATE sql_conn SET name = :n, marks = :m WHERE roll_no = :r'
     try:
-        dsn_tns = cx_Oracle.makedsn('localhost', '1521', service_name = 'XE')
-        conn = cx_Oracle.connect(user = r'shriniket', paasword = 'shriniket', dsn = dsn_tns)
+        conn = cx_Oracle.connect('system/shriniket@//localhost:1521/xe')
         c = conn.cursor()
-        print('trying')
         c.execute(sql_query,[name, marks, roll_no])
-        print('trying')
+        conn.commit()
     except cx_Oracle.Error as e:
         print(e)
         error_1 = e
         return error_1
 
-    c.execute('SELECT * FROM sql_conn')
-    for rows in c:
-        print(rows[0], '-', rows[1], '-', rows[2], '\n')
-        conn.commit()
-        c.close()
-
 while True:
-    inp = input("1. ADD\n2.DELETE\n4.Show entry \n ENTER INPUT:")
+    inp = input("1. ADD\n2. DELETE\n3. Update entry\n4. Show entry \n ENTER INPUT:")
     print(' ')
     match inp:
         case '1':
@@ -82,8 +64,7 @@ while True:
             roll_no, name, marks = map(str, input("enter roll no name and marks seperated by space:").split())
             update_entry(roll_no, name, marks)
         case '4':
-            dsn_tns = cx_Oracle.makedsn('localhost', '1521', service_name = 'XE')
-            conn = cx_Oracle.connect(user = r'shriniket', paasword = 'shriniket', dsn = dsn_tns)
+            conn = cx_Oracle.connect('system/shriniket@//localhost:1521/xe')
             c = conn.cursor()
             c.execute('select * from sql_conn')
             for r in c:

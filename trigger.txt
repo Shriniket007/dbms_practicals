@@ -10,15 +10,16 @@ INSERT INTO lib_tab VALUES('ikigai','AVAILABLE');
 
 
 CREATE OR REPLACE TRIGGER trigger_1 
-AFTER UPDATE OR DELETE OR INSERT ON lib_tab FOR EACH ROW
+AFTER UPDATE OR DELETE OR INSERT ON lib_tab
+FOR EACH ROW
 ENABLE
 	BEGIN
 		IF UPDATING THEN
 			dbms_output.put_line(:OLD.status);
 			INSERT INTO library_audit VALUES (SYSDATE,:OLD.book_name,:OLD.status,:NEW.status,'UPDATE');
-                ELSIF INSERTING THEN
-                         dbms_output.put_line(:NEW.status);
-                         INSERT INTO library_audit VALUES (SYSDATE,:NEW.book_name,:OLD.status,:NEW.status,'INSERT');
+        ELSIF INSERTING THEN
+            dbms_output.put_line(:NEW.status);
+            INSERT INTO library_audit VALUES (SYSDATE,:NEW.book_name,:OLD.status,:NEW.status,'INSERT');
 		ELSE
 			dbms_output.put_line(:OLD.book_name||'deleting');
 			INSERT INTO library_audit VALUES(SYSDATE,:OLD.book_name,:OLD.status,:NEW.status,'DELETE');
